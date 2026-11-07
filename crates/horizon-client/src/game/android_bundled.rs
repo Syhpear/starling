@@ -104,6 +104,32 @@ mod smartf3_settings;
 #[path = "android_bundled/smartf3/smartf3_click.rs"]
 mod smartf3_click;
 
+// The runtime alone also builds for the host's tests.
+#[cfg(any(target_os = "android", test))]
+#[allow(dead_code)]
+#[path = "android_bundled/sodium_horizon/runtime.rs"]
+pub(super) mod official_sodium;
+
+#[cfg(target_os = "android")]
+#[path = "android_bundled/sodium_horizon/sodium_list.rs"]
+mod sodium_list;
+
+#[cfg(target_os = "android")]
+#[path = "android_bundled/sodium_horizon/sodium_settings.rs"]
+mod sodium_settings;
+
+#[cfg(target_os = "android")]
+#[path = "android_bundled/sodium_horizon/sodium_click.rs"]
+mod sodium_click;
+
+#[cfg(target_os = "android")]
+#[path = "android_bundled/sodium_horizon/sodium_frame.rs"]
+mod sodium_frame;
+
+#[cfg(target_os = "android")]
+#[path = "android_bundled/sodium_horizon/sodium_hud.rs"]
+mod sodium_hud;
+
 pub(super) fn native_key(game: &mut Game<'_>, key: &str, pressed: bool) {
     let _ = (&game, &key, &pressed);
     #[cfg(target_os = "android")]
@@ -136,6 +162,7 @@ pub(super) fn native_mods(game: &mut Game<'_>, mods: &mut Vec<NativeMod>) {
         minimap_list::run(&mut *mods);
         recipes_list::run(&mut *mods);
         smartf3_list::run(&mut *mods);
+        sodium_list::run(&mut *mods);
     }
 }
 
@@ -147,6 +174,7 @@ pub(super) fn native_settings(game: &mut Game<'_>, mod_id: &str, buttons: &mut V
         minimap_settings::run(&mut *game, mod_id, &mut *buttons);
         recipes_settings::run(&mut *game, mod_id, &mut *buttons);
         smartf3_settings::run(&mut *game, mod_id, &mut *buttons);
+        sodium_settings::run(&mut *game, mod_id, &mut *buttons);
     }
 }
 
@@ -158,6 +186,7 @@ pub(super) fn native_settings_click(game: &mut Game<'_>, mod_id: &str, button: u
         minimap_click::run(&mut *game, mod_id, button);
         recipes_click::run(&mut *game, mod_id, button);
         smartf3_click::run(&mut *game, mod_id, button);
+        sodium_click::run(&mut *game, mod_id, button);
     }
 }
 
@@ -174,6 +203,19 @@ pub(super) fn native_frame(game: &mut Game<'_>, elapsed: Duration) {
     #[cfg(target_os = "android")]
     {
         recipes_frame::run(&mut *game);
+        sodium_frame::run(&mut *game);
+    }
+}
+
+pub(super) fn native_hud(
+    game: &mut Game<'_>,
+    batch: &mut HudBatch,
+    corners: &mut horizon_client::extras_hud::Corners,
+) {
+    let _ = (&game, &batch, &corners);
+    #[cfg(target_os = "android")]
+    {
+        sodium_hud::run(&mut *game, &mut *batch, &mut *corners);
     }
 }
 
@@ -199,4 +241,5 @@ pub(super) fn reset() {
     official_minimap::reset();
     official_recipes::set_viewer(None);
     smartf3_native::reset();
+    official_sodium::reset();
 }
