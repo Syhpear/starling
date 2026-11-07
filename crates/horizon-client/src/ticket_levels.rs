@@ -210,7 +210,7 @@ impl ChunkTickets {
 /// area. Each is a superset of that ticket's random-ticking chunks, so the box
 /// never rejects a chunk that random ticks.
 fn random_bounds(s: &Sources) -> Option<(i32, i32, i32, i32)> {
-    let sim = s.simulation_distance.clamp(0, 32);
+    let sim = s.simulation_distance.clamp(0, max_distance());
     let boxes = s
         .players
         .iter()
@@ -226,13 +226,28 @@ fn random_bounds(s: &Sources) -> Option<(i32, i32, i32, i32)> {
     })
 }
 
+/// The largest view or simulation distance a ticket reaches: vanilla's 32,
+/// or Sodium Horizon's 128 while that mod is on.
+fn max_distance() -> i32 {
+    if horizon_client_render::sodium_horizon::extended_distance() {
+        128
+    } else {
+        32
+    }
+}
+
 /// How far a player's tickets reach, and the simulation ticket's level.
 fn reach(s: &Sources) -> (i32, i32, i32) {
-    let view = s.view_distance.clamp(0, 32);
-    let simulation = s.simulation_distance.clamp(0, 32);
+    let view = s.view_distance.clamp(0, max_distance());
+    let simulation = s.simulation_distance.clamp(0, max_distance());
     // PLAYER_LOADING within the view distance, PLAYER_SIMULATION at the
-    // player's chunk (`getPlayerTicketLevel`: never below 0).
-    let player_sim = (i32::from(ENTITY_TICKING) - simulation).max(0);
+    // player's chunk (`getPlayerTicketLevel`: never below 0). Sodium Horizon's
+    // longer simulation distances may go below it; the levels clamp later.
+    let player_sim = if horizon_client_render::sodium_horizon::extended_distance() {
+        i32::from(ENTITY_TICKING) - simulation
+    } else {
+        (i32::from(ENTITY_TICKING) - simulation).max(0)
+    };
     let reach = (view + 1).max(i32::from(BLOCK_TICKING) - player_sim);
     (view, player_sim, reach)
 }

@@ -1726,6 +1726,18 @@ impl Game<'_> {
     /// `RecipeToast`s: up to five stack in 32-pixel slots, the rest queue. `hidden` (F1)
     /// keeps them timing out without drawing them.
     pub(super) fn draw_toasts(&mut self, batch: &mut HudBatch, hidden: bool) {
+        {
+            use horizon_client_render::sodium_horizon as sodium;
+            let (advancements, recipes) = (
+                sodium::enabled(sodium::ADVANCEMENT_TOASTS),
+                sodium::enabled(sodium::RECIPE_TOASTS),
+            );
+            if !advancements || !recipes {
+                self.adv
+                    .toasts
+                    .retain(|t| if t.is_recipe() { recipes } else { advancements });
+            }
+        }
         let multiplier = f64::from(self.settings.notification_display_time);
         let mut sound_played = false;
         let mut i = 0;

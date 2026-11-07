@@ -782,6 +782,11 @@ impl Game<'_> {
         alpha: f64,
         out: &mut Vec<Vertex>,
     ) {
+        if !horizon_client_render::sodium_horizon::enabled(
+            horizon_client_render::sodium_horizon::ARMOR_STANDS,
+        ) {
+            return;
+        }
         for a in &self.armor_stands {
             let entity_start = out.len();
             // ArmorStand.shouldRenderAtSqrDistance: 256 times the box's mean

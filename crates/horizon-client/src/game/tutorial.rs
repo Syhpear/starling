@@ -442,6 +442,12 @@ impl super::Game<'_> {
         batch: &mut horizon_client::hud::HudBatch,
         hidden: bool,
     ) {
+        if !horizon_client_render::sodium_horizon::enabled(
+            horizon_client_render::sodium_horizon::TUTORIAL_TOASTS,
+        ) {
+            self.tutorial_toasts.clear();
+            return;
+        }
         let wanted = self.tutorial.hint();
         for t in &mut self.tutorial_toasts {
             t.wanted = wanted.is_some_and(|(hint, _)| hint == t.hint);
