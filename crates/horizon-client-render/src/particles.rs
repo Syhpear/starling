@@ -1562,6 +1562,12 @@ impl ParticleEngine {
     /// `ParticleEngine.createParticle`: always spawned, but `ParticleEngine.add`
     /// drops a spore blossom air particle once `ParticleLimit.SPORE_BLOSSOM` is full.
     pub fn create(&mut self, options: &ParticleOptions, p: [f64; 3], v: [f64; 3]) {
+        if !crate::sodium_horizon::particle_allowed(
+            options.ty as usize,
+            options.mod_particle.is_some(),
+        ) {
+            return;
+        }
         let seed = self.seeds.next_long();
         if let Some(particle) = self.make(options, p, v, seed) {
             *self.made.entry(options.ty.name()).or_default() += 1;

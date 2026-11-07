@@ -364,6 +364,9 @@ impl SpriteAnimator {
         let mut count = 0;
         self.changed.clear();
         for sprite in &mut self.sprites {
+            if !crate::sodium_horizon::animation_allowed(sprite.animation.layer) {
+                continue;
+            }
             if let Some(active) = active {
                 let layer = sprite.animation.layer as usize;
                 let word = layer / u64::BITS as usize;

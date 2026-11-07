@@ -325,12 +325,31 @@ impl SectionMesh {
     }
 }
 pub const ALL_VISIBLE: u64 = (1 << 36) - 1;
+/// Sodium Horizon's resolver: one bit per open cell, runs consumed a row at a time.
+fn sodium_section_visibility(pad: &Padded, info: &[Info], stack: &mut Vec<usize>) -> u64 {
+    let mut open = [0u16; 256];
+    for y in 0..16 {
+        for z in 0..16 {
+            let offset = pi(0, y, z);
+            let row = &mut open[(y * 16 + z) as usize];
+            for x in 0..16 {
+                if !info[pad.blocks[offset + x] as usize].solid {
+                    *row |= 1 << x;
+                }
+            }
+        }
+    }
+    crate::sodium_horizon::resolve(&open, stack)
+}
 /// VisGraph.resolve: flood fill non-opaque cells and connect the faces each region touches.
 #[cfg(test)]
 fn visibility(pad: &Padded, info: &[Info]) -> u64 {
     visibility_reusing(pad, info, &mut Vec::new())
 }
 fn visibility_reusing(pad: &Padded, info: &[Info], stack: &mut Vec<usize>) -> u64 {
+    if crate::sodium_horizon::fast_visibility() {
+        return sodium_section_visibility(pad, info, stack);
+    }
     // The all-visible shortcut can leave a partially filled stack behind.
     stack.clear();
     // Opaque cells are already visited: resolve each state's opacity once,

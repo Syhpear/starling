@@ -208,6 +208,9 @@ impl Stars {
     }
 
     pub(super) fn draw(&self, pass: &mut wgpu::RenderPass<'_>, late: bool) {
+        if !crate::sodium_horizon::enabled(crate::sodium_horizon::STARS) {
+            return;
+        }
         pass.set_pipeline(if late {
             self.late_pipeline.as_ref().unwrap()
         } else {

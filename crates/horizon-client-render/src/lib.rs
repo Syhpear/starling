@@ -82,6 +82,7 @@ pub mod shader_options;
 pub mod shader_pack_list;
 pub mod signs;
 pub mod skins;
+pub mod sodium_horizon;
 pub mod sound_engine;
 pub mod sound_events;
 pub mod sound_preview;

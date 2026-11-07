@@ -445,6 +445,7 @@ impl Sprites {
             .transpose()?;
         let count = frames.len() as u32;
         let layer = u32::try_from(self.native.len())?;
+        crate::sodium_horizon::register_layer(layer, name);
         let pbr = match name.split_once(':') {
             Some((namespace, path)) if labpbr_maps() => {
                 let path = root.join(format!("assets/{namespace}/textures/{path}.png"));
